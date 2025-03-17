@@ -3,15 +3,15 @@ import { loginService, signupService } from "../services/userService";
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const email = req.body.email as string;
-    const password = req.body.password as string;
-    const name = req.body.name as string;
-    const result = await signupService({ email: email, password: password, name: name });
+    const { email, password, name } = req.body;
+    const result = await signupService({ email, password, name });
+    
     if (!result) {
-      res.status(404).send({ message: "User already exists" });
+      res.status(409).send({ message: "User already exists" });
       return;
     }
-    res.status(200).send({ token: result });
+    
+    res.status(201).send({ token: result });
   } catch (error) {
     console.log("Error signing up user: ", error);
     res.status(500).send({ message: "Internal Server Error" });
@@ -20,8 +20,8 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const email = req.headers.email as string;
-    const password = req.headers.password as string;
+    const email = req.body.email as string;
+    const password = req.body.password as string;
 
     if (!email || !password) {
       res.status(400).send({ message: "Email and password are required" });
@@ -34,7 +34,8 @@ export const login = async (req: Request, res: Response) => {
       res.status(401).send({ message: "Invalid email or password" });
       return;
     }
-    res.status(200).send({ token: token });
+
+    res.status(200).send({ token });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).send({ message: "Internal server error" });

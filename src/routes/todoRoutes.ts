@@ -3,9 +3,9 @@ import { addTask, deleteTask, editTaskByTaskId, fetchAllTodoByUser } from "../co
 
 const router =  Router();
 
-router.get("/fetchAllTasks", fetchAllTodoByUser)
-router.put("/editTask", editTaskByTaskId)
-router.post("/addTask", addTask)
-router.delete("/deleteTask", deleteTask)
+router.get("/", fetchAllTodoByUser)
+router.put("/:id", editTaskByTaskId)
+router.post("/", addTask)
+router.delete("/:id", deleteTask)
 
 export default router;
