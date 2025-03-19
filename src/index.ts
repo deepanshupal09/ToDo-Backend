@@ -4,11 +4,12 @@ import todoRoutes from "./routes/todoRoutes";
 import userRoutes from "./routes/userRoutes";
 import dotenv from 'dotenv';
 import { verify } from './middlewares/middleware';
+import swaggerDocs from './utils/swagger';
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 8000;
+const port: number = Number(process.env.PORT) || 8000;
 const prisma = new PrismaClient();
 
 app.use(express.json());
@@ -25,7 +26,7 @@ const checkDatabaseConnection = async () => {
     await prisma.$queryRaw`SELECT 1`; 
     console.log('Connected to PostgreSQL');
     return true;
-  } catch (error) {
+  } catch (error:any) {
     console.error('Failed to connect to PostgreSQL', error);
     return false;
   }
@@ -45,6 +46,8 @@ const startServer = async () => {
 };
 
 startServer();
+
+swaggerDocs(app, port);
 
 // Handle shutdown gracefully
 process.on('SIGINT', async () => {

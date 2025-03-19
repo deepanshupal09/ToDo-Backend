@@ -5,56 +5,76 @@ import {
   editTaskByTaskIdService,
   fetchAllTodoByUserService,
 } from "../services/todoService";
-import { parseJwt } from "../utlis";
+import { parseJwt } from "../utils/utlis";
+
+const extractUserIdFromToken = (req: Request): number => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    throw new Error("Unauthorized: No Bearer token provided");
+  }
+  const token = authHeader.split(" ")[1];
+  const userId = parseJwt(token)?.id;
+  if (!userId) throw new Error("Invalid Token: Unable to extract user ID");
+  return Number(userId);
+};
 
 export const fetchAllTodoByUser = async (req: Request, res: Response) => {
   try {
-    const token = req.headers.token as string;
-    const userId = parseJwt(token).id; // Changed to use user ID
-    const result = await fetchAllTodoByUserService(Number(userId));
+    const userId = extractUserIdFromToken(req);
+    const result = await fetchAllTodoByUserService(userId);
     res.status(200).send(result);
-  } catch (error) {
-    console.log("Error fetching todo by user: ", error);
-    res.status(500).send({ message: "Internal Server Error" });
+  } catch (error:any) {
+    console.error("Error fetching todo by user:", error);
+    res.status(401).send({ message: error.message });
   }
 };
 
 export const editTaskByTaskId = async (req: Request, res: Response) => {
   try {
-    const token = req.headers.token as string;
-    const userId = parseJwt(token).id;
-    const taskId = parseInt(req.params.id as string);
+    const userId = extractUserIdFromToken(req);
+    const taskId = parseInt(req.params.id);
     const updatedData = req.body;
 
     const result = await editTaskByTaskIdService(taskId, updatedData);
     res.status(200).send(result);
-  } catch (error) {
-    console.error("Error editing task: ", error);
-    res.status(500).send({ message: "Internal Server Error" });
+  } catch (error:any) {
+    console.error("Error editing task:", error);
+    
+    if (error.name === "NotFoundError") {
+      res.status(404).send({ message: error.message });
+      return;
+    }
+    
+    res.status(401).send({ message: error.message });
   }
 };
 
 export const addTask = async (req: Request, res: Response) => {
   try {
-    const token = req.headers.token as string;
-    const userId = parseJwt(token).id;
+    const userId = extractUserIdFromToken(req);
     const newTask = req.body;
-    // console.log("body: ", newTask)
-    const result = await addTaskService(Number(userId), newTask);
+
+    const result = await addTaskService(userId, newTask);
     res.status(201).send(result);
-  } catch (error) {
-    console.error("Error adding task: ", error);
-    res.status(500).send({ message: "Internal Server Error" });
+  } catch (error:any) {
+    console.error("Error adding task:", error);
+    res.status(401).send({ message: error.message });
   }
 };
 
 export const deleteTask = async (req: Request, res: Response) => {
   try {
-    const taskId = parseInt(req.params.id as string);
+    const taskId = parseInt(req.params.id);
     await deleteTaskService(taskId);
     res.status(200).send({ message: "Task deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting task: ", error);
+  } catch (error:any) {
+    console.error("Error deleting task:", error);
+    
+    if (error.name === "NotFoundError") {
+      res.status(404).send({ message: error.message });
+      return;
+    }
+    
     res.status(500).send({ message: "Internal Server Error" });
   }
 };

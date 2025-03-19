@@ -5,17 +5,24 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 
 export async function verify(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers.token as string;
-  if (!token) {
-    console.log("no token");
-    res.status(401).send({ message: "Access Denied" });
+  const authHeader = req.headers.authorization;
+
+  console.log(req.cookies)
+  
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.log("No Bearer token provided");
+    res.status(401).json({ message: "Access Denied" });
     return;
   }
+
+  const token = authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
+
   try {
-    const decoded: any = jwt.verify(token, process.env.SECRET_KEY as string);
+    const decoded = jwt.verify(token, process.env.SECRET_KEY as string);
+    (req as any).user = decoded; // Attach user info to request
     next();
-  } catch (error) {
+  } catch (error:any) {
     console.error("Invalid Token:", error);
-    res.status(400).send({ message: "Invalid Token" });
+    res.status(401).json({ message: "Invalid Token" });
   }
 }
