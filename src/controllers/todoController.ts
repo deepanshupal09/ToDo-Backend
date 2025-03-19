@@ -7,7 +7,7 @@ import {
 } from "../services/todoService";
 import { parseJwt } from "../utils/utlis";
 
-const extractUserIdFromToken = (req: Request): number => {
+export const extractUserIdFromToken = (req: Request): number => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new Error("Unauthorized: No Bearer token provided");

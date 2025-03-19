@@ -46,7 +46,6 @@ const startServer = async () => {
 };
 
 startServer();
-
 swaggerDocs(app, port);
 
 // Handle shutdown gracefully

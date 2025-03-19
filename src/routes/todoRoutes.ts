@@ -19,7 +19,7 @@ const router = Router();
  * /api/tasks:
  *   get:
  *     summary: Fetch all to-do tasks of a user
- *     tags: [tasks]
+ *     tags: [Tasks]
  *     responses:
  *       200:
  *         description: Returns a list of to-do tasks
@@ -61,7 +61,7 @@ router.get("/", fetchAllTodoByUser)
  * /api/tasks/{id}:
  *   put:
  *     summary: Edit an existing to-do task by task ID
- *     tags: [tasks]
+ *     tags: [Tasks]
  *     parameters:
  *       - in: path
  *         name: id
@@ -111,7 +111,7 @@ router.put("/:id", editTaskByTaskId)
  * /api/tasks:
  *   post:
  *     summary: Add a new to-do task
- *     tags: [tasks]
+ *     tags: [Tasks]
  *     requestBody:
  *       required: true
  *       content:
@@ -157,7 +157,7 @@ router.post("/", addTask)
  * /api/tasks/{id}:
  *   delete:
  *     summary: Delete a to-do task by ID
- *     tags: [tasks]
+ *     tags: [Tasks]
  *     parameters:
  *       - in: path
  *         name: id
